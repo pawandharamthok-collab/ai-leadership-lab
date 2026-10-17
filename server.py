@@ -30,7 +30,8 @@ if not api_key:
 app = Flask(__name__, static_folder="static", template_folder="templates")
 client = genai.Client(api_key=api_key)
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.db")
+# Configurable database path (supports local memory.db, container mounts, or volume storage)
+DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.db"))
 
 # =====================================================================
 # SQLITE PERSISTENT MEMORY INITIALIZATION

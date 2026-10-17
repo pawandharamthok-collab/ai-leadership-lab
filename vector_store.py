@@ -19,7 +19,7 @@ from google import genai
 from google.genai import types
 from security_router import PIISanitizer
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.db")
+DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.db"))
 
 class VectorKnowledgeBase:
     INDEX_NAME = "ai-leadership-kb"
