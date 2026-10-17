@@ -10,7 +10,7 @@ import urllib.request
 import urllib.parse
 import re
 import sqlite3
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, session, redirect, url_for
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -28,7 +28,11 @@ if not api_key:
     raise ValueError("GEMINI_API_KEY is missing in .env")
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+app.secret_key = os.getenv("SESSION_SECRET", "pawan_executive_ai_vault_secret_key_2026")
 client = genai.Client(api_key=api_key)
+
+# Master Passcode / PIN for Zero-Trust Access Barrier (Default: 1983)
+MASTER_PASSCODE = os.getenv("MASTER_PASSCODE", "1983")
 
 # Configurable database path (supports local memory.db, container mounts, or volume storage)
 DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.db"))
@@ -792,6 +796,48 @@ def prune_and_optimize_tokens(chat_obj, max_history_turns=10):
                     content.parts = new_parts
     except Exception as opt_err:
         print("Token optimization warning:", opt_err)
+
+
+# =====================================================================
+# ZERO-TRUST ACCESS CONTROL & MASTER PASSCODE BARRIER
+# =====================================================================
+
+@app.before_request
+def require_authentication():
+    # Allow static assets and authentication endpoints
+    allowed_endpoints = {"login", "api_verify_passcode", "static"}
+    if request.endpoint in allowed_endpoints:
+        return
+    
+    # Check if user has an authenticated session
+    if not session.get("authenticated", False):
+        if request.path.startswith("/api/"):
+            return jsonify({"error": "Unauthorized. Please authenticate with Master Passcode."}), 401
+        return redirect(url_for("login"))
+
+
+@app.route("/login")
+def login():
+    if session.get("authenticated", False):
+        return redirect(url_for("index"))
+    return render_template("login.html")
+
+
+@app.route("/api/verify_passcode", methods=["POST"])
+def api_verify_passcode():
+    data = request.get_json(silent=True) or {}
+    passcode = data.get("passcode", "").strip()
+    if passcode == MASTER_PASSCODE:
+        session["authenticated"] = True
+        session.permanent = True
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Invalid Master Passcode"}), 401
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 
 # =====================================================================
