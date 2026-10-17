@@ -827,7 +827,13 @@ def login():
 def api_verify_passcode():
     data = request.get_json(silent=True) or {}
     passcode = data.get("passcode", "").strip()
-    if passcode == MASTER_PASSCODE:
+    
+    # Read active passcode dynamically from environment
+    current_expected = os.getenv("MASTER_PASSCODE")
+    if not current_expected:
+        return jsonify({"success": False, "error": "Server error: MASTER_PASSCODE is not set in environment."}), 500
+        
+    if passcode == current_expected.strip():
         session["authenticated"] = True
         session.permanent = True
         return jsonify({"success": True})
