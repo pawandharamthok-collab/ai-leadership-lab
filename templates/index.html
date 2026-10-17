@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive AI Assistant | Personal Leadership Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="font-normal">
+  <div class="cockpit-container">
+    
+    <!-- Top Header -->
+    <header class="cockpit-header">
+      <div class="brand">
+        <div class="brand-icon">💼</div>
+        <div>
+          <h1 class="brand-title">Executive AI Assistant</h1>
+          <p class="brand-subtitle">Personal Leadership Partner &bull; Strategic Advisor</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <div class="font-size-adjuster" title="Adjust text size for easy reading">
+          <span>Text Size:</span>
+          <button id="font-decrease" class="ctrl-btn" aria-label="Decrease font">A-</button>
+          <button id="font-reset" class="ctrl-btn active" aria-label="Default font">A</button>
+          <button id="font-increase" class="ctrl-btn" aria-label="Increase font">A+</button>
+        </div>
+        <button id="voice-toggle-btn" class="voice-toggle-btn" title="Toggle Assistant Voice Readout (Text-to-Speech)">
+          <span>🔊</span> Voice: Off
+        </button>
+        <a href="/showcase" target="_blank" style="text-decoration: none; background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #ffffff; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35); transition: opacity 0.2s;">
+          👔 Architecture Showcase
+        </a>
+        <a href="/pitch" target="_blank" style="text-decoration: none; background: linear-gradient(135deg, #059669, #10b981); color: #ffffff; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); transition: opacity 0.2s;">
+          🎯 5L Strategy Pitch
+        </a>
+        <div class="status-indicator">
+          <span class="status-dot pulse"></span>
+          <span id="agent-status-text">Assistant Online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Chat Workspace (Full Height & Focused) -->
+    <main class="chat-workspace">
+      <div class="chat-messages" id="chat-messages">
+        
+        <!-- Welcome Message from Assistant -->
+        <div class="message-row agent-row">
+          <div class="avatar">💼</div>
+          <div class="message-bubble agent-bubble">
+            <div class="message-header">
+              <span class="sender-name">Executive Assistant</span>
+              <span class="timestamp">Just now</span>
+            </div>
+            <div class="message-content">
+              <p><strong>Hello! I am your Personal Executive Assistant & AI Leadership Partner.</strong></p>
+              <p>I am here to assist you with anything you need—from analyzing enterprise cloud and AI strategies to drafting executive communications, problem-solving, organizing priorities, and managing technical initiatives.</p>
+              <p><em>How can I assist you right now?</em></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Area -->
+      <footer class="chat-input-area">
+        <!-- Floating Voice Listening Waveform Bar -->
+        <div id="voice-indicator" class="voice-indicator" style="display: none;">
+          <span class="voice-pulse-dot"></span>
+          <span id="voice-status-text" class="voice-status-text">🎙️ Listening... (Click 🎙️ when done to review & send)</span>
+          <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span></div>
+          <button type="button" id="clear-voice-btn" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; border-radius: 6px; padding: 2px 8px; font-size: 0.8em; font-weight: 600; cursor: pointer; margin-left: 10px;" title="Clear transcribed text">✕ Clear</button>
+        </div>
+
+        <!-- Floating Image Preview Bar -->
+        <div id="image-preview-container" class="image-preview-container" style="display: none;">
+          <div class="preview-thumb-box">
+            <img id="image-preview" src="" alt="Screenshot Preview" />
+            <button type="button" id="remove-image-btn" class="remove-image-btn" title="Remove screenshot">✕</button>
+          </div>
+          <span id="image-filename" class="image-filename">Screenshot attached</span>
+          <span class="preview-tip">(Tip: You can also paste directly with Ctrl+V)</span>
+        </div>
+
+        <!-- Floating Document (Tier 3) Preview Bar -->
+        <div id="doc-preview-container" class="image-preview-container" style="display: none; background: rgba(30, 58, 138, 0.35); border-color: rgba(96, 165, 250, 0.4);">
+          <div class="preview-thumb-box" style="display: flex; align-items: center; justify-content: center; font-size: 1.4rem; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 2px 8px;">
+            📄
+            <button type="button" id="remove-doc-btn" class="remove-image-btn" title="Remove document">✕</button>
+          </div>
+          <span id="doc-filename" class="image-filename" style="color: #93c5fd; font-weight: 600;">Document attached</span>
+          <span class="preview-tip" style="color: #60a5fa;">(Tier 3 Cloud Context • 0% Laptop RAM)</span>
+        </div>
+
+        <form id="chat-form" class="input-form">
+          <!-- File Inputs & Action Buttons -->
+          <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+          <button type="button" id="attach-btn" class="attach-button" title="Attach Screenshot or Image (or paste with Ctrl+V)">
+            📷
+          </button>
+          
+          <input type="file" id="doc-upload" accept=".pdf,.txt,.md,.csv,.json,.py,.docx" style="display: none;" />
+          <button type="button" id="doc-attach-btn" class="attach-button" title="Attach Document (PDF, TXT, MD, CSV) for Tier 3 Cloud Context (0% Laptop RAM)">
+            📄
+          </button>
+
+          <!-- Voice Input Button -->
+          <button type="button" id="mic-btn" class="attach-button mic-button" title="Voice Input (Click to speak your command)">
+            🎙️
+          </button>
+          
+          <input 
+            type="text" 
+            id="user-input" 
+            class="chat-input" 
+            placeholder="Ask me anything, speak (🎙️), attach a document (📄), or paste a screenshot (Ctrl+V)..." 
+            autocomplete="off"
+          />
+          <button type="submit" id="send-btn" class="send-button">
+            <span class="send-icon">➤</span> Send
+          </button>
+        </form>
+      </footer>
+    </main>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

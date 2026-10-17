@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strategic AI Leadership Offering | ₹5 Lakh / Month Blueprint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(18, 24, 38, 0.85);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #0d1527 0%, var(--bg-dark) 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 35px;
+      border-bottom: 1px solid var(--border-card);
+      padding-bottom: 20px;
+    }
+
+    .brand-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-link {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-card);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .btn-link:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-blue);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+    .badge-target {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.25;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    /* Target Math Grid */
+    .math-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 45px;
+    }
+    .math-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+    .math-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .math-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Two Main Offers */
+    .section-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .offer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 50px;
+    }
+    .offer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(12px);
+    }
+    .offer-1 { border-top: 4px solid var(--accent-cyan); }
+    .offer-2 { border-top: 4px solid var(--accent-emerald); }
+
+    .offer-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .offer-1 .offer-tag { color: var(--accent-cyan); }
+    .offer-2 .offer-tag { color: var(--accent-emerald); }
+
+    .offer-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .offer-price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #93c5fd;
+      margin-bottom: 16px;
+    }
+    .offer-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+    .feature-list {
+      list-style: none;
+      border-top: 1px solid var(--border-card);
+      padding-top: 18px;
+    }
+    .feature-list li {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* 90-Day Roadmap */
+    .roadmap-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 50px;
+    }
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .timeline-step {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .step-num {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--accent-amber);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Elevator Pitch Box */
+    .pitch-quote {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .pitch-quote h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #93c5fd;
+      margin-bottom: 8px;
+    }
+    .pitch-quote p {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 2rem;">💼</span>
+        <div>
+          <h1 class="brand-title">Executive AI Leadership & Architecture</h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Fractional Advisory & Enterprise Systems Engineering</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="/" class="btn-link">🎙️ Assistant Chat</a>
+        <a href="/showcase" class="btn-link">👔 Architecture Showcase</a>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="badge-target">🎯 90-Day Target: ₹5,00,000 / Month Recurring Revenue</span>
+      <h1>"High-Ticket Fractional AI Leadership for Fast-Growing SaaS & Enterprise Teams"</h1>
+      <p>Helping engineering executives build autonomous agentic platforms, eliminate PII/compliance risks, and cut cloud GPU inference costs by up to 70%.</p>
+    </section>
+
+    <!-- Revenue Target Math -->
+    <section class="math-grid">
+      <div class="math-card">
+        <div class="math-val" style="color: var(--accent-emerald);">₹5,00,000</div>
+        <div class="math-label">Target Monthly Run-Rate</div>
+      </div>
+      <div class="math-card">
+        <div class="math-val" style="color: var(--accent-cyan);">2 Clients</div>
+        <div class="math-label">Strategic Retainers Needed (₹2.5L/mo)</div>
+      </div>
+      <div class="math-card">
+        <div class="math-val" style="color: var(--accent-purple);">₹75,000</div>
+        <div class="math-label">5-Day Entry Diagnostic (Front-End)</div>
+      </div>
+    </section>
+
+    <!-- Two Core Offerings -->
+    <h2 class="section-title"><span>📦</span> The 2-Tier High-Ticket Service Offerings</h2>
+    <div class="offer-grid">
+      
+      <!-- Offer 1 -->
+      <div class="offer-card offer-1">
+        <div>
+          <span class="offer-tag">Entry Sprint (The Trojan Horse)</span>
+          <h3 class="offer-title">Enterprise AI Architecture Diagnostic</h3>
+          <div class="offer-price">₹75,000 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ 5-Day Sprint</span></div>
+          <p class="offer-desc">A forensic diagnostic for CTOs and VPs of Engineering to uncover token leaks, data compliance risks, and architectural bottlenecks before they scale.</p>
+          <ul class="feature-list">
+            <li>🔍 <strong>Cloud & API Cost Audit:</strong> Pinpoints 40–70% token waste.</li>
+            <li>🛡️ <strong>PII & Security Vulnerability Scan:</strong> Regex audit for zero data leakage.</li>
+            <li>📐 <strong>3-Tier RAG Review:</strong> Fixes chunking hallucinations and high vector DB fees.</li>
+            <li>📄 <strong>Board-Ready Blueprint:</strong> Complete 15-page executive roadmap deliverable.</li>
+          </ul>
+        </div>
+        <div style="margin-top: 20px; font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600;">
+          💡 Conversion Goal: 50% convert directly into the Monthly Retainer.
+        </div>
+      </div>
+
+      <!-- Offer 2 -->
+      <div class="offer-card offer-2">
+        <div>
+          <span class="offer-tag">Flagship Recurring Retainer</span>
+          <h3 class="offer-title">Fractional AI Leader & Systems Architect</h3>
+          <div class="offer-price">₹2,50,000 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ Month per Client</span></div>
+          <p class="offer-desc">Strategic executive partnership and hands-on systems architecture. Just 2 clients hit your ₹5,00,000/month revenue goal.</p>
+          <ul class="feature-list">
+            <li>🧠 <strong>Autonomous Agent Design:</strong> Stateful agents with persistent memory.</li>
+            <li>☁️ <strong>Cloud SRE & SLA Governance:</strong> Multi-cloud fleet orchestration & sub-50ms latency.</li>
+            <li>🔒 <strong>Zero-Trust Data Protection:</strong> Client-side PII sanitization pipelines.</li>
+            <li>👥 <strong>Team Mentorship:</strong> Upskills your engineering staff; reports directly to CEO/CTO.</li>
+          </ul>
+        </div>
+        <div style="margin-top: 20px; font-size: 0.85rem; color: var(--accent-emerald); font-weight: 600;">
+          💎 Commitment: 3-Month Minimum Sprint (₹7.5L Contract Value).
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 30-Second Elevator Pitch -->
+    <div class="pitch-quote">
+      <h3>🎤 The 30-Second Elevator Pitch (For Tomorrow & Networking)</h3>
+      <p>"I help fast-growing SaaS and enterprise engineering teams deploy autonomous AI agents and cut their cloud/GPU inference bills by up to 70%—without risking sensitive customer data or compliance breaches. Using our battle-tested 3-tier architecture, we offload heavy AI workloads to serverless TPUs while keeping sensitive assets 100% protected on-premise."</p>
+    </div>
+
+    <!-- 90-Day Execution Timeline -->
+    <div class="roadmap-box">
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px;">📅 The 90-Day Execution Trajectory</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">How we will close 2 high-ticket clients and build ₹5,00,000/month in recurring revenue.</p>
+      
+      <div class="timeline-grid">
+        <div class="timeline-step">
+          <div class="step-num">Weeks 1 - 2</div>
+          <div class="step-title">Asset Finalization</div>
+          <div class="step-desc">Publish portfolio showcase, diagnostic case study, and one-page offer sheet.</div>
+        </div>
+        <div class="timeline-step">
+          <div class="step-num">Weeks 3 - 4</div>
+          <div class="step-title">Targeted Outreach</div>
+          <div class="step-desc">Initiate conversations with 30 target CTOs/Founders facing high AI inference bills.</div>
+        </div>
+        <div class="timeline-step">
+          <div class="step-num">Weeks 5 - 6</div>
+          <div class="step-title">Close 2 Diagnostics</div>
+          <div class="step-desc">Deliver two ₹75,000 5-day sprints (₹1.5 Lakh cashflow + deep relationship).</div>
+        </div>
+        <div class="timeline-step">
+          <div class="step-num">Weeks 7 - 12</div>
+          <div class="step-title">Convert to Retainers</div>
+          <div class="step-desc">Convert diagnostics into 2 ongoing ₹2.5L/mo retainers = <strong>₹5,00,000/mo Achieved!</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

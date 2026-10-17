@@ -1,0 +1,27 @@
+graph TD
+    subgraph "User Interface (Frontend)"
+        UI[Professional Portfolio / Dashboard]
+        UI -->|Query| Gateway[API Gateway / Security Layer]
+    end
+
+    subgraph "Intelligence Layer (The Brain)"
+        Gateway --> LLM[LLM Orchestrator]
+        LLM --> RAG[RAG Engine]
+    end
+
+    subgraph "Data Governance (The Memory)"
+        RAG --> VectorDB[(Tier 2: Pinecone Vector DB)]
+        RAG --> SQLite[(Tier 1: Local SQLite Memory)]
+        RAG --> CloudDocs[(Tier 3: Google Cloud Files)]
+    end
+
+    subgraph "Operations & Infrastructure"
+        LLM --> Firebase[Firebase Hosting & SRE]
+        LLM --> Telemetry[System Health & Cloud Metrics]
+    end
+
+    style UI fill:#f9f,stroke:#333,stroke-width:2px
+    style LLM fill:#bbf,stroke:#333,stroke-width:2px
+    style VectorDB fill:#dfd,stroke:#333,stroke-width:2px
+    style CloudDocs fill:#dfd,stroke:#333,stroke-width:2px
+    style SQLite fill:#dfd,stroke:#333,stroke-width:2px
