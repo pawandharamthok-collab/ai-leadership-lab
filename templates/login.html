@@ -177,6 +177,7 @@
         if (res.ok && data.success) {
           window.location.href = "/";
         } else {
+          errorMsg.innerText = data.error || "⚠️ Invalid Passcode. Access Denied.";
           errorMsg.style.display = "block";
           input.value = "";
           input.focus();
