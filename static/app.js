@@ -483,6 +483,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
+      let hasError = false;
+      let hasDone = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -508,12 +510,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 fullResponse += ev.text;
                 streamingBubble.updateText(fullResponse);
               } else if (ev.type === "done") {
+                hasDone = true;
                 streamingBubble.finish(ev.latency);
                 if (fullResponse) {
                   speakText(fullResponse);
                 }
               } else if (ev.type === "error") {
-                streamingBubble.updateText(`⚠️ **Error:** ${ev.error}`);
+                hasError = true;
+                streamingBubble.updateText(`⚠️ **Error:** ${ev.error}\n\n💡 *Try sending your message again.*`);
+                streamingBubble.finish();
               }
             } catch (err) {
               console.warn("SSE parse error:", err);
@@ -522,8 +527,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      if (!fullResponse && isFirstChunk) {
-        streamingBubble.updateText("(Completed without additional text output)");
+      // Only show fallback if no text, no error, and no done event was received
+      // This prevents overwriting real error messages with a misleading generic message
+      if (!fullResponse && isFirstChunk && !hasError) {
+        streamingBubble.updateText("⚠️ The assistant completed processing but returned no text. This may be a temporary model issue — please try again.");
+        streamingBubble.finish();
+      } else if (!hasDone && !hasError) {
+        // Stream ended without a proper done/error event (connection dropped)
         streamingBubble.finish();
       }
 

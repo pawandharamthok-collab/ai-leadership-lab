@@ -1,4 +1,5 @@
 import os
+import threading
 import io
 import sys
 import ctypes
@@ -82,8 +83,20 @@ def get_persistent_memory_context() -> str:
     except Exception as e:
         return f"\n(Memory load warning: {e})"
 
-# Global tracker for tools called during a single request
-called_tools_log = []
+# Thread-safe per-request tracker for tools called during a single request
+# Using threading.local() prevents race conditions when Gunicorn runs multiple threads
+_request_local = threading.local()
+
+def _get_tools_log():
+    """Returns the per-request tool log list, creating it if needed."""
+    if not hasattr(_request_local, 'tools_log'):
+        _request_local.tools_log = []
+    return _request_local.tools_log
+
+def _reset_tools_log():
+    """Resets the per-request tool log for a new request."""
+    _request_local.tools_log = []
+    return _request_local.tools_log
 
 # =====================================================================
 # PERSISTENT MEMORY TOOLS FOR AGENT
@@ -91,7 +104,7 @@ called_tools_log = []
 
 def remember_fact(key: str, value: str) -> str:
     """Permanently saves or updates a key-value fact into your long-term SQLite database (persists across restarts)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "remember_fact",
         "description": f"Saved permanent memory: {key} = {value[:40]}..."
     })
@@ -113,7 +126,7 @@ def remember_fact(key: str, value: str) -> str:
 
 def recall_all_memories() -> str:
     """Retrieves all persistent memories, goals, and facts saved in your SQLite long-term memory."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "recall_all_memories",
         "description": "Retrieved all persistent memories from SQLite"
     })
@@ -137,7 +150,7 @@ def recall_all_memories() -> str:
 
 def get_system_memory_status() -> str:
     """Queries real-time physical memory (RAM) usage on the host operating system."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_system_memory_status",
         "description": "Queried live Windows RAM metrics via Win32 API"
     })
@@ -172,7 +185,7 @@ def get_system_memory_status() -> str:
 
 def get_top_memory_processes() -> str:
     """Lists the top 5 highest memory-consuming processes currently active on the host."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_top_memory_processes",
         "description": "Queried PowerShell for top memory-consuming processes"
     })
@@ -186,7 +199,7 @@ def get_top_memory_processes() -> str:
 
 def get_cpu_and_disk_health() -> str:
     """Queries processor load and free disk storage space across partitions."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_cpu_and_disk_health",
         "description": "Queried CIM instances for CPU load and storage partition margins"
     })
@@ -213,7 +226,7 @@ def is_sensitive_filepath(path: str) -> bool:
 
 def read_local_file(file_path: str) -> str:
     """Reads the text contents of a local file from disk (e.g. logs, configs, source code, notes)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "read_local_file",
         "description": f"Read file: {file_path}"
     })
@@ -232,7 +245,7 @@ def read_local_file(file_path: str) -> str:
 
 def write_local_file(file_path: str, content: str) -> str:
     """Creates or overwrites a local file with the specified content (e.g. scripts, reports, executive notes)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "write_local_file",
         "description": f"Wrote to file: {file_path}"
     })
@@ -250,7 +263,7 @@ def write_local_file(file_path: str, content: str) -> str:
 
 def execute_powershell_command(command: str) -> str:
     """Executes a PowerShell command on the host Windows machine and returns the output."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "execute_powershell_command",
         "description": f"Executed PowerShell: {command[:60]}..."
     })
@@ -272,7 +285,7 @@ def execute_powershell_command(command: str) -> str:
 
 def search_the_web(query: str) -> str:
     """Searches the live public internet using a search engine and returns top search results and snippets."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "search_the_web",
         "description": f"Searched the web for: {query[:50]}"
     })
@@ -311,7 +324,7 @@ def search_the_web(query: str) -> str:
 
 def fetch_webpage_content(url: str) -> str:
     """Fetches and reads the live text content of any public webpage or documentation URL."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "fetch_webpage_content",
         "description": f"Fetched webpage content from: {url[:50]}"
     })
@@ -333,7 +346,7 @@ def fetch_webpage_content(url: str) -> str:
 
 def audit_and_sanitize_content(content: str) -> str:
     """Scans any text, code, or document for sensitive PII (API keys, passwords, credentials, emails, phone numbers) and returns the sanitized version with an audit report."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "audit_and_sanitize_content",
         "description": "Scanned content for PII/secrets using local regex scrubber"
     })
@@ -348,7 +361,7 @@ def audit_and_sanitize_content(content: str) -> str:
 
 def classify_and_route_document(content: str, title: str = "", user_intent: str = "") -> str:
     """Evaluates text or document for security sensitivity and token volume. Recommends the exact storage tier (Tier 1 Local SQLite, Tier 2 Pinecone Vector DB, or Tier 3 Google Files API) with executive rationale."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "classify_and_route_document",
         "description": f"Classified data route for: {title or 'Document'}"
     })
@@ -359,7 +372,7 @@ def classify_and_route_document(content: str, title: str = "", user_intent: str 
 def upload_document_to_cloud(file_path: str, display_name: str = "") -> str:
     """Uploads a local document (PDF, TXT, MD, CSV, etc.) from the laptop to Google Cloud Files API (Tier 3).
     Performs local PII scrubbing for text documents and returns the cloud file reference for multimodal reasoning."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "upload_document_to_cloud",
         "description": f"Uploaded document to Tier 3 cloud context: {os.path.basename(file_path)}"
     })
@@ -402,7 +415,7 @@ def upload_document_to_cloud(file_path: str, display_name: str = "") -> str:
 
 def list_cloud_documents() -> str:
     """Lists all active documents currently cached in Google Cloud Files API (Tier 3) with status and size."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "list_cloud_documents",
         "description": "Queried Google Cloud Files API for active documents"
     })
@@ -426,7 +439,7 @@ def list_cloud_documents() -> str:
 
 def delete_cloud_document(file_name: str) -> str:
     """Permanently deletes a cached document from Google Cloud Files API (Tier 3) for privacy and ephemerality."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "delete_cloud_document",
         "description": f"Deleted document from cloud cache: {file_name}"
     })
@@ -440,7 +453,7 @@ def delete_cloud_document(file_name: str) -> str:
 def index_knowledge_snippet(content: str, title: str = "Knowledge Snippet") -> str:
     """Indexes a text snippet, SOP, framework guide, or IT runbook into Tier 2 Vector Knowledge Base (Pinecone Serverless / Zero-RAM Vector Store).
     Automatically scrubs PII and generates 768-dim cloud embeddings on Google TPUs (0% laptop RAM load)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "index_knowledge_snippet",
         "description": f"Indexed into Tier 2 Vector DB: {title}"
     })
@@ -454,7 +467,7 @@ def index_knowledge_snippet(content: str, title: str = "Knowledge Snippet") -> s
 def search_knowledge_base(query: str, top_k: int = 3) -> str:
     """Performs semantic vector similarity search across all indexed Tier 2 knowledge snippets, architecture guides, and runbooks.
     Embeds the query using cloud TPUs and retrieves relevant passages."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "search_knowledge_base",
         "description": f"Vector search for: {query[:50]}"
     })
@@ -473,7 +486,7 @@ def search_knowledge_base(query: str, top_k: int = 3) -> str:
 
 def list_firebase_projects() -> str:
     """Discovers and lists all cloud Firebase projects associated with your authenticated account."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "list_firebase_projects",
         "description": "Queried Firebase CLI for active cloud projects"
     })
@@ -503,7 +516,7 @@ def list_firebase_projects() -> str:
 
 def get_firebase_sites_and_health(project_id: str = "family-apps-hub") -> str:
     """Queries all deployed web hosting sites under a Firebase project and conducts live HTTP health & latency checks."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_firebase_sites_and_health",
         "description": f"Audited live hosting sites & health for: {project_id}"
     })
@@ -546,7 +559,7 @@ def get_firebase_sites_and_health(project_id: str = "family-apps-hub") -> str:
 
 def get_firebase_project_apps(project_id: str = "family-apps-hub") -> str:
     """Lists registered client applications (Web, Android, iOS) under a Firebase project."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_firebase_project_apps",
         "description": f"Queried registered client apps for: {project_id}"
     })
@@ -576,7 +589,7 @@ def deploy_firebase_site(project_dir: str, only_target: str = "hosting", project
     project_dir: Local directory path containing the project and firebase.json.
     only_target: Deployment target, e.g. 'hosting' or 'hosting:pawan-vault'.
     project_id: Firebase project id (e.g. 'family-apps-hub' or 'homecanvas-88550')."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "deploy_firebase_site",
         "description": f"Triggered Firebase deployment from {os.path.basename(project_dir)}"
     })
@@ -620,7 +633,7 @@ def deploy_firebase_site(project_dir: str, only_target: str = "hosting", project
 
 def get_zerodha_account_overview() -> str:
     """Queries your Zerodha trading account overview, available cash, equity/commodity margins, collateral, and connection status (anonymized, no account IDs)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_account_overview",
         "description": "Queried Zerodha account margins & status (Anonymized)"
     })
@@ -634,7 +647,7 @@ def get_zerodha_account_overview() -> str:
 
 def get_zerodha_holdings() -> str:
     """Retrieves long-term equity delivery portfolio holdings with quantity, average buy price, current LTP, P&L, return %, sector, and portfolio weight (anonymized)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_holdings",
         "description": "Retrieved Zerodha equity delivery holdings with sector & weight metrics"
     })
@@ -644,7 +657,7 @@ def get_zerodha_holdings() -> str:
 
 def get_zerodha_portfolio_analytics() -> str:
     """Performs deep executive portfolio analysis: total invested vs current value, overall P&L and ROI %, sector diversification breakdown, concentration risk alerts (>20% single-stock exposure), and top winners vs lagging assets."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_portfolio_analytics",
         "description": "Executed executive portfolio risk & diversification analysis"
     })
@@ -654,7 +667,7 @@ def get_zerodha_portfolio_analytics() -> str:
 
 def get_zerodha_positions() -> str:
     """Retrieves current open intraday (MIS) and F&O derivative positions, including mark-to-market (M2M) P&L, day P&L, and net quantities (anonymized)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_positions",
         "description": "Retrieved Zerodha intraday and F&O positions (Anonymized)"
     })
@@ -665,7 +678,7 @@ def get_zerodha_positions() -> str:
 def get_live_stock_quote(symbols: str) -> str:
     """Fetches real-time market quotes (LTP, open/high/low/close, net day change, volume, 52-week high/low) directly from the National Stock Exchange of India (NSE) feed.
     symbols: Comma-separated symbols or indices, e.g. 'RELIANCE, INFY, TCS, TATASTEEL, NIFTY 50, BANK NIFTY'"""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_live_stock_quote",
         "description": f"Fetched live NSE market quote for: {symbols[:50]}"
     })
@@ -678,7 +691,7 @@ def get_live_stock_quote(symbols: str) -> str:
 
 def get_stock_technical_levels(symbol: str) -> str:
     """Calculates key technical levels (52-week high/low, support/resistance, market posture, and drawdown from peak) for any NSE equity or index."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_stock_technical_levels",
         "description": f"Queried NSE technical levels for: {symbol}"
     })
@@ -688,7 +701,7 @@ def get_stock_technical_levels(symbol: str) -> str:
 
 def get_zerodha_coin_mutual_funds() -> str:
     """Retrieves all active Coin mutual fund holdings with units, purchase NAV, current NAV, invested amount, current value, and unrealized returns (anonymized)."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_coin_mutual_funds",
         "description": "Retrieved Zerodha Coin mutual fund holdings"
     })
@@ -698,7 +711,7 @@ def get_zerodha_coin_mutual_funds() -> str:
 
 def get_zerodha_coin_sips() -> str:
     """Retrieves all active and paused Zerodha Coin Systematic Investment Plans (SIPs), monthly deduction dates, installment amounts, and frequency."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_coin_sips",
         "description": "Retrieved Zerodha Coin active SIP mandates"
     })
@@ -708,7 +721,7 @@ def get_zerodha_coin_sips() -> str:
 
 def get_zerodha_combined_wealth() -> str:
     """Combines direct stock holdings and Coin mutual funds into an executive master wealth balance sheet, overall ROI %, and investor profitability verdict."""
-    called_tools_log.append({
+    _get_tools_log().append({
         "tool": "get_zerodha_combined_wealth",
         "description": "Queried combined stock and mutual fund wealth overview"
     })
@@ -761,13 +774,18 @@ system_instruction = (
     "7. LIVE WEB SEARCH & BROWSING: Search the web (`search_the_web`) for current news or documentation, and read public URLs (`fetch_webpage_content`).\n"
     "8. FILE SYSTEM & TERMINAL: Read/write files (`read_local_file`, `write_local_file`) and run PowerShell (`execute_powershell_command`).\n"
     "9. SYSTEM TELEMETRY: Query RAM, CPU, and disk storage.\n"
+    "\n"
+    "CRITICAL RAG ROUTING RULES (MANDATORY):\n"
+    "- When the user asks 'what do you know about me', 'what have I told you', or anything about personal knowledge, memory, facts, or preferences → ALWAYS call BOTH `recall_all_memories()` (Tier 1 SQLite) AND `search_knowledge_base()` (Tier 2 Vector DB) to demonstrate the full RAG pipeline. Never call just one.\n"
+    "- When the user mentions 'RAG', 'knowledge base', 'vector search', 'documents', 'indexed knowledge', 'semantic search', or 'retrieval' → ALWAYS call `search_knowledge_base()` to query Tier 2 Pinecone Vector DB, in addition to any Tier 1 SQLite retrieval.\n"
+    "- After calling tools, you MUST ALWAYS generate a detailed text response synthesizing the retrieved data. NEVER return empty or tool-only responses. Explain what was found, from which tier, and present it in a structured format.\n"
     + get_persistent_memory_context() +
     "\n\nAlways provide crisp, visually structured answers with tables and bullet points. Invoke tools autonomously."
 )
 
 # Persistent chat session
 chat_session = client.chats.create(
-    model="gemini-3.1-flash-lite",
+    model="gemini-3.5-flash-lite",
     config=types.GenerateContentConfig(
         tools=agent_tools,
         system_instruction=system_instruction,
@@ -972,8 +990,7 @@ def zerodha_callback():
 @app.route("/api/chat_stream", methods=["POST"])
 def chat_stream():
     """Real-Time Streaming Response via Server-Sent Events (SSE)."""
-    global called_tools_log
-    called_tools_log = []
+    tools_log = _reset_tools_log()
     
     data = request.get_json() or {}
     user_message = data.get("message", "").strip()
@@ -1011,28 +1028,51 @@ def chat_stream():
         
     def generate():
         start_time = time.time()
+        tools_log = _get_tools_log()
         prune_and_optimize_tokens(chat_session, max_history_turns=10)
+        has_text = False
+        tools_executed = []
         
         try:
             response_stream = chat_session.send_message_stream(contents)
             for chunk in response_stream:
                 # Flush any tools invoked up to this moment
-                while called_tools_log:
-                    tool_event = called_tools_log.pop(0)
+                while tools_log:
+                    tool_event = tools_log.pop(0)
+                    tools_executed.append(tool_event)
                     yield f"data: {json.dumps({'type': 'tool', 'tool': tool_event['tool'], 'desc': tool_event['description']})}\n\n"
                 
                 if chunk.text:
+                    has_text = True
                     yield f"data: {json.dumps({'type': 'chunk', 'text': chunk.text})}\n\n"
                     
-            # Flush any remaining tools
-            while called_tools_log:
-                tool_event = called_tools_log.pop(0)
+            # Flush any remaining tools after stream completes
+            while tools_log:
+                tool_event = tools_log.pop(0)
+                tools_executed.append(tool_event)
                 yield f"data: {json.dumps({'type': 'tool', 'tool': tool_event['tool'], 'desc': tool_event['description']})}\n\n"
+            
+            # If tools ran but the model produced no text, send a synthetic summary
+            # This prevents the dreaded "Completed without additional text output" on the frontend
+            if not has_text and tools_executed:
+                tool_names = ", ".join([t["tool"] for t in tools_executed])
+                fallback_text = f"✅ Tools executed successfully: **{tool_names}**. The model completed the tool calls but did not generate a text summary. Please ask a follow-up question to see the retrieved results."
+                yield f"data: {json.dumps({'type': 'chunk', 'text': fallback_text})}\n\n"
                 
             latency = round(time.time() - start_time, 2)
             yield f"data: {json.dumps({'type': 'done', 'latency': latency})}\n\n"
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+            error_msg = str(e)
+            # Provide actionable error messages instead of raw stack traces
+            if '503' in error_msg or 'UNAVAILABLE' in error_msg:
+                user_error = "The AI model is temporarily overloaded. Please retry in a few seconds."
+            elif '429' in error_msg or 'RESOURCE_EXHAUSTED' in error_msg:
+                user_error = "Rate limit reached. Please wait a moment before sending another message."
+            elif '404' in error_msg or 'NOT_FOUND' in error_msg:
+                user_error = "The AI model endpoint is unavailable. The server may need a configuration update."
+            else:
+                user_error = f"An unexpected error occurred: {error_msg[:200]}"
+            yield f"data: {json.dumps({'type': 'error', 'error': user_error})}\n\n"
             
     return Response(generate(), mimetype="text/event-stream")
 
@@ -1040,8 +1080,7 @@ def chat_stream():
 @app.route("/api/chat", methods=["POST"])
 def chat():
     """Non-streaming fallback endpoint."""
-    global called_tools_log
-    called_tools_log = []
+    tools_log = _reset_tools_log()
     
     prune_and_optimize_tokens(chat_session, max_history_turns=10)
     data = request.get_json() or {}
@@ -1084,7 +1123,7 @@ def chat():
         latency = round(time.time() - start_time, 2)
         return jsonify({
             "reply": response.text,
-            "tools_called": called_tools_log,
+            "tools_called": _get_tools_log(),
             "latency": latency
         })
     except Exception as e:
